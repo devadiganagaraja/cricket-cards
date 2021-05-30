@@ -18,14 +18,25 @@ public class CricketCardUserService {
     @Autowired
     QCricketCardUserAggregate qCricketCardUserAggregate;
 
-    public boolean authenticateUser(String mobile, String password) {
+    public User authenticateUser(String mobile, String password) {
         Optional<CricketCardUserAggregate> userDbOpt = cricketCardUserRepository.findOne(qCricketCardUserAggregate.mobile.eq(mobile).and(qCricketCardUserAggregate.password.eq(password)));
-        return  userDbOpt.isPresent();
+        User user = new User();
+        if(userDbOpt.isPresent()){
+
+            user.setUserName(userDbOpt.get().getUserName());
+            user.setMobile(userDbOpt.get().getMobile());
+        }
+        return user;
+
     }
 
-    public User addUser(User user) {
-        cricketCardUserRepository.save(populateDBUser(user));
-        return user;
+    public Boolean addUser(User user) {
+        try {
+            cricketCardUserRepository.save(populateDBUser(user));
+            return true;
+        }catch (Exception e){
+            return false;
+        }
     }
 
     private CricketCardUserAggregate populateDBUser(User user) {

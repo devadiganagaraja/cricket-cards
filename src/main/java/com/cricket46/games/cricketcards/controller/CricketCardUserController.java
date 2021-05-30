@@ -21,17 +21,17 @@ public class CricketCardUserController {
     CricketCardUserService cricketCardUserService;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<Boolean> authenticateUser(@RequestBody User user) {
+    public ResponseEntity<User> authenticateUser(@RequestBody User user) {
         System.out.println("user--"+user);
 
-        boolean userLoggedIn = cricketCardUserService.authenticateUser(user.getMobile(), user.getPassword());
+        User userLoggedIn = cricketCardUserService.authenticateUser(user.getMobile(), user.getPassword());
         System.out.println("userLoggedIn--"+userLoggedIn);
-        return new ResponseEntity<Boolean>(userLoggedIn, HttpStatus.OK);
+        return new ResponseEntity<User>(userLoggedIn, HttpStatus.OK);
     }
 
     @PostMapping("/users")
     public ResponseEntity<Boolean> createUser(@RequestBody User user){
-        cricketCardUserService.addUser(user);
-        return new ResponseEntity<Boolean>(true, HttpStatus.OK);
+        Boolean status = cricketCardUserService.addUser(user);
+        return new ResponseEntity<Boolean>(status, HttpStatus.OK);
     }
 }
