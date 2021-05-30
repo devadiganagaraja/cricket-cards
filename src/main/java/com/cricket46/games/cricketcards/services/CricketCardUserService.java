@@ -23,6 +23,7 @@ public class CricketCardUserService {
         User user = new User();
         if(userDbOpt.isPresent()){
 
+            user.setUserId(userDbOpt.get().getUserId());
             user.setUserName(userDbOpt.get().getUserName());
             user.setMobile(userDbOpt.get().getMobile());
         }
