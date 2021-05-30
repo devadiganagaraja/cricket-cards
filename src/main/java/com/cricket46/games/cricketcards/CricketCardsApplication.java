@@ -26,7 +26,7 @@ public class CricketCardsApplication {
 	@Bean
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	@Qualifier("liveGames")
-	public Map<Long, GameInfo> liveGames(){
+	public Map<String, GameInfo> liveGames(){
 		return new ConcurrentHashMap<>();
 	}
 

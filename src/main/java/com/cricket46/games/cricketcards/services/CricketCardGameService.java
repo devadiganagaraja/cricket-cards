@@ -1,7 +1,11 @@
 package com.cricket46.games.cricketcards.services;
 
+import com.cricket46.games.cricketcards.domain.CricketCardGameAggregate;
+import com.cricket46.games.cricketcards.domain.QCricketCardGameAggregate;
 import com.cricket46.games.cricketcards.model.*;
+import com.cricket46.games.cricketcards.repository.CricketCardGameRepository;
 import com.cricket46.games.cricketcards.utils.CricketCardGameUtils;
+import com.mysema.codegen.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +19,20 @@ public class CricketCardGameService {
 
 
     @Autowired
-    Map<Long, GameInfo> liveGames;
+    Map<String, GameInfo> liveGames;
 
     @Autowired
     CricketAthleteService cricketAthleteService;
 
     @Autowired
     CricketCardUserService cricketCardUserService;
+
+
+    @Autowired
+    CricketCardGameRepository cricketCardGameRepository;
+
+    @Autowired
+    QCricketCardGameAggregate qCricketCardGameAggregate;
 
     public CricketAthleteModel getRandomElement(List<CricketAthleteModel> cricketAthleteModelList, Set<Integer> selected)
     {
@@ -34,12 +45,12 @@ public class CricketCardGameService {
     }
 
 
-    public GameInfo createGame(long gameId, long player1Id, long player2Id) {
+    public GameInfo createGame(long player1Id, long player2Id) {
 
 
         GameInfo gameInfo = new GameInfo();
 
-        gameInfo.setGameId(gameId);
+
 
 
         List<CricketAthleteModel> cricketAthleteModelList = cricketAthleteService.fetchCricketAthletes().stream().filter(cricketAthleteModel -> cricketAthleteModel.getTotalMatches() > 100).collect(Collectors.toList());
@@ -77,6 +88,20 @@ public class CricketCardGameService {
         gamePlayer2.setNextCards(new LinkedList<>());
 
 
+        CricketCardGameAggregate cricketCardGameAggregate = new CricketCardGameAggregate();
+        cricketCardGameAggregate.setPlayer1(player1Id);
+        cricketCardGameAggregate.setPlayer2(player2Id);
+
+        cricketCardGameAggregate.setPlayer1Name(user1.getUserName());
+        cricketCardGameAggregate.setPlayer2Name(user2.getUserName());
+
+
+
+        cricketCardGameAggregate =cricketCardGameRepository.save(cricketCardGameAggregate);
+
+        gameInfo.setGameId(cricketCardGameAggregate.getGameId());
+
+
         for(int i =0; i < 10; i++){
             CricketAthleteModel randomAthlete = getRandomElement(cricketAthleteModelList, selected);
             gamePlayer2.getNextCards().add(getCardDetails(randomAthlete.getPlayerId(), randomAthlete.getFullName(), randomAthlete.getTotalMatches(), randomAthlete.getTotalRuns(), randomAthlete.getTotalWickets()));
@@ -102,24 +127,35 @@ public class CricketCardGameService {
     }
 
 
-    public PlayerGameInfo getGamePageInfo(long  gameId, long player1Id, long player2Id) {
+    public PlayerGameInfo getGamePageInfo(String  gameId, long player1Id, long player2Id) {
 
-        GameInfo gameInfo = liveGames.get(gameId);
+        GameInfo gameInfo = null;
+        if(gameId == null && gameId.trim().length() == 0 && !liveGames.containsKey(gameId)) {
 
-
-        if(null == gameInfo){
-            gameInfo = createGame(gameId, player1Id, player2Id);
-            gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
-            gameInfo.getPlayer1Info().getNextCards().remove(0);
-            gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
-            gameInfo.getPlayer2Info().getNextCards().remove(0);
-            liveGames.put(gameId, gameInfo);
+            throw  new RuntimeException("Game not setup properly....");
 
         }
+
+        gameInfo = liveGames.get(gameId);
+
+
+
 
         if(gameInfo.getPlayer1Info().getCardCount() ==0 || gameInfo.getPlayer2Info().getCardCount() == 0) {
             gameInfo.getPlayer1Info().setGameFinished(true);
             gameInfo.getPlayer2Info().setGameFinished(true);
+            Optional<CricketCardGameAggregate> cricketCardGameAggregateOpt = cricketCardGameRepository.findOne(qCricketCardGameAggregate.gameId.eq(gameId));
+            if(cricketCardGameAggregateOpt.isPresent()){
+                CricketCardGameAggregate cricketCardGameAggregate = cricketCardGameAggregateOpt.get();
+                if(gameInfo.getPlayer1Info().getCardCount() ==0){
+                    cricketCardGameAggregate.setWinner(gameInfo.getPlayer2Info().getPlayerInfo().getPlayerId());
+                    cricketCardGameAggregate.setWinnerName(gameInfo.getPlayer2Info().getPlayerInfo().getDisplayName());
+                }else{
+                    cricketCardGameAggregate.setWinner(gameInfo.getPlayer1Info().getPlayerInfo().getPlayerId());
+                    cricketCardGameAggregate.setWinnerName(gameInfo.getPlayer1Info().getPlayerInfo().getDisplayName());
+                }
+                cricketCardGameRepository.save(cricketCardGameAggregate);
+            }
         }
 
         System.out.println("gameInfo: "+gameInfo);
@@ -299,5 +335,52 @@ public class CricketCardGameService {
             return true;
         }
         return false;
+    }
+
+
+    public List<GameRequest> getGameRequests(long playerId){
+
+        Iterable<CricketCardGameAggregate> cricketCardGamItr = cricketCardGameRepository.findAll(qCricketCardGameAggregate.player2.eq(playerId).and(qCricketCardGameAggregate.winner.loe(0)));
+
+        List<GameRequest> gameRequests = new ArrayList<>();
+        Iterator<CricketCardGameAggregate> it = cricketCardGamItr.iterator();
+
+        while (it.hasNext()){
+            CricketCardGameAggregate gameAggregate = it.next();
+            GameRequest gameRequest = new GameRequest();
+            gameRequest.setGameId(gameAggregate.getGameId());
+            gameRequest.setOpponentId(gameAggregate.getPlayer1());
+            gameRequest.setOpponentName(gameAggregate.getPlayer1Name());
+            gameRequest.setGameRef("/games/"+gameAggregate.gameId+"/player1/"+gameAggregate.getPlayer1()+"/player2/"+gameAggregate.getPlayer2());
+            gameRequests.add(gameRequest);
+        }
+        return gameRequests;
+
+    }
+
+    public List<GameHistory> getGameHistory(long playerId) {
+        Iterable<CricketCardGameAggregate> cricketCardGamItr = cricketCardGameRepository.findAll(qCricketCardGameAggregate.winner.gt(0).and(qCricketCardGameAggregate.player1.eq(playerId).or(qCricketCardGameAggregate.player2.eq(playerId))));
+
+        List<GameHistory> gameHistories = new ArrayList<>();
+        Iterator<CricketCardGameAggregate> it = cricketCardGamItr.iterator();
+
+        while (it.hasNext()){
+            CricketCardGameAggregate gameAggregate = it.next();
+            GameHistory gameHistory = new GameHistory();
+            gameHistory.setGameId(gameAggregate.getGameId());
+            gameHistory.setPlayer1Name(gameAggregate.getPlayer1Name());
+            gameHistory.setPlayer2Name(gameAggregate.getPlayer2Name());
+            gameHistory.setWinnerName(gameAggregate.getWinnerName());
+            gameHistories.add(gameHistory);
+        }
+        return gameHistories;
+    }
+
+    public String inviteFriend(long player1Id, long player2Id) {
+        GameInfo gameInfo = createGame(player1Id, player2Id);
+        liveGames.put(gameInfo.getGameId(), gameInfo);
+
+        return "/games/"+gameInfo.getGameId()+"/player1/"+player1Id+"/player2/"+player2Id;
+
     }
 }

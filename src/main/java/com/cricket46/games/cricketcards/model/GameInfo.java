@@ -3,7 +3,7 @@ package com.cricket46.games.cricketcards.model;
 import java.util.List;
 
 public class GameInfo {
-    private long gameId;
+    private String gameId;
     private PlayerGameInfo player1Info;
     private PlayerGameInfo player2Info;
 
@@ -16,11 +16,11 @@ public class GameInfo {
                 '}';
     }
 
-    public long getGameId() {
+    public String getGameId() {
         return gameId;
     }
 
-    public void setGameId(long gameId) {
+    public void setGameId(String gameId) {
         this.gameId = gameId;
     }
 

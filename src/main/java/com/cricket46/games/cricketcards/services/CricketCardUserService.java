@@ -2,6 +2,7 @@ package com.cricket46.games.cricketcards.services;
 
 import com.cricket46.games.cricketcards.domain.CricketCardUserAggregate;
 import com.cricket46.games.cricketcards.domain.QCricketCardUserAggregate;
+import com.cricket46.games.cricketcards.model.CricketCardHome;
 import com.cricket46.games.cricketcards.model.User;
 import com.cricket46.games.cricketcards.repository.CricketCardUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class CricketCardUserService {
 
     @Autowired
     QCricketCardUserAggregate qCricketCardUserAggregate;
+
+    @Autowired
+    CricketCardGameService cricketCardGameService;
 
     public User authenticateUser(String mobile, String password) {
         Optional<CricketCardUserAggregate> userDbOpt = cricketCardUserRepository.findOne(qCricketCardUserAggregate.mobile.eq(mobile).and(qCricketCardUserAggregate.password.eq(password)));
@@ -80,5 +84,15 @@ public class CricketCardUserService {
 
     public List<User> getFriendList(long playerId) {
         return getUsersList().stream().filter(user -> user.getUserId() != playerId).collect(Collectors.toList());
+    }
+
+    public CricketCardHome getCardHome(long playerId) {
+        CricketCardHome cricketCardHome = new CricketCardHome();
+
+        cricketCardHome.setPlayer(getUser(playerId));
+        cricketCardHome.setFriends(getFriendList(playerId));
+        cricketCardHome.setGameRequests(cricketCardGameService.getGameRequests(playerId));
+        cricketCardHome.setGameHistory(cricketCardGameService.getGameHistory(playerId));
+        return cricketCardHome;
     }
 }
