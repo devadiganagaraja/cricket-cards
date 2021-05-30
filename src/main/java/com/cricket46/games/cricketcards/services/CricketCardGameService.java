@@ -146,6 +146,20 @@ public class CricketCardGameService {
                     gameInfo.getPlayer2Info().getNextCards().remove(0);
                     gameInfo.getPlayer1Info().setActivePlayer(true);
                     gameInfo.getPlayer2Info().setActivePlayer(false);
+
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getTotalMatches()).append(" ] ")
+                            .append( " won against ").append(player2card.getFullName()).append(" [").append(player2card.getTotalMatches()).append(" ] on matches.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getTotalMatches()).append(" ] ")
+                            .append( " lost against ").append(player1card.getFullName()).append(" [").append(player1card.getTotalMatches()).append(" ] on matches.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
                 }else{
                     gameInfo.getPlayer2Info().getNextCards().add(player1card);
                     gameInfo.getPlayer2Info().getNextCards().add(player2card);
@@ -157,6 +171,20 @@ public class CricketCardGameService {
                     gameInfo.getPlayer2Info().getNextCards().remove(0);
                     gameInfo.getPlayer1Info().setActivePlayer(false);
                     gameInfo.getPlayer2Info().setActivePlayer(true);
+
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getTotalMatches()).append(" ] ")
+                            .append( " lost against ").append(player2card.getFullName()).append(" [").append(player2card.getTotalMatches()).append(" ]  on matches.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getTotalMatches()).append(" ] ")
+                            .append( " won against ").append(player1card.getFullName()).append(" [").append(player1card.getTotalMatches()).append(" ] on matches.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
                 }
             }else if(position == 2){
                 if(player1card.getTotalRuns() >player2card.getTotalRuns()){
@@ -170,6 +198,20 @@ public class CricketCardGameService {
                     gameInfo.getPlayer2Info().getNextCards().remove(0);
                     gameInfo.getPlayer1Info().setActivePlayer(true);
                     gameInfo.getPlayer2Info().setActivePlayer(false);
+
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getTotalRuns()).append(" ] ")
+                            .append( " won against ").append(player2card.getFullName()).append(" [").append(player2card.getTotalRuns()).append(" ]  on runs.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getTotalRuns()).append(" ] ")
+                            .append( " lost against ").append(player1card.getFullName()).append(" [").append(player1card.getTotalRuns()).append(" ] on runs.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
                 }else{
                     gameInfo.getPlayer2Info().getNextCards().add(player1card);
                     gameInfo.getPlayer2Info().getNextCards().add(player2card);
@@ -181,6 +223,21 @@ public class CricketCardGameService {
                     gameInfo.getPlayer2Info().getNextCards().remove(0);
                     gameInfo.getPlayer1Info().setActivePlayer(false);
                     gameInfo.getPlayer2Info().setActivePlayer(true);
+
+
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getTotalRuns()).append(" ] ")
+                            .append( " lost against ").append(player2card.getFullName()).append(" [").append(player2card.getTotalRuns()).append(" ] on runs.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getTotalRuns()).append(" ] ")
+                            .append( " won against ").append(player1card.getFullName()).append(" [").append(player1card.getTotalRuns()).append(" ] on runs.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
                 }
             }else if(position == 3){
                 if(player1card.getTotalWickets() >player2card.getTotalWickets()){
@@ -194,6 +251,20 @@ public class CricketCardGameService {
                     gameInfo.getPlayer2Info().getNextCards().remove(0);
                     gameInfo.getPlayer1Info().setActivePlayer(true);
                     gameInfo.getPlayer2Info().setActivePlayer(false);
+
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getTotalWickets()).append(" ] ")
+                            .append( " won against ").append(player2card.getFullName()).append(" [").append(player2card.getTotalWickets()).append(" ] on wickets.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getTotalWickets()).append(" ] ")
+                            .append( " lost against ").append(player1card.getFullName()).append(" [").append(player1card.getTotalWickets()).append(" ] on wickets.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
                 }else{
                     gameInfo.getPlayer2Info().getNextCards().add(player1card);
                     gameInfo.getPlayer2Info().getNextCards().add(player2card);
@@ -205,6 +276,21 @@ public class CricketCardGameService {
                     gameInfo.getPlayer2Info().getNextCards().remove(0);
                     gameInfo.getPlayer1Info().setActivePlayer(false);
                     gameInfo.getPlayer2Info().setActivePlayer(true);
+
+
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getTotalWickets()).append(" ] ")
+                            .append( " lost against ").append(player2card.getFullName()).append(" [").append(player2card.getTotalWickets()).append(" ] on wickets.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getTotalWickets()).append(" ] ")
+                            .append( " won against ").append(player1card.getFullName()).append(" [").append(player1card.getTotalWickets()).append(" ] on wickets.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
                 }
             }
             return true;

@@ -6,6 +6,8 @@ public class PlayerGameInfo {
     private boolean gameFinished;
     private int cardCount;
     private PlayerInfo playerInfo;
+    private String lastResultMessage;
+    private String lastResultDescription;
 
     private boolean activePlayer;
 
@@ -57,8 +59,12 @@ public class PlayerGameInfo {
         return cardCount;
     }
 
-    public void setCardCount(int cardCount) {
-        this.cardCount = cardCount;
+    public String getLastResultMessage() {
+        return lastResultMessage;
+    }
+
+    public void setLastResultMessage(String lastResultMessage) {
+        this.lastResultMessage = lastResultMessage;
     }
 
     @Override
@@ -67,9 +73,24 @@ public class PlayerGameInfo {
                 "gameFinished=" + gameFinished +
                 ", cardCount=" + cardCount +
                 ", playerInfo=" + playerInfo +
+                ", lastResultMessage='" + lastResultMessage + '\'' +
+                ", lastResultDescription='" + lastResultDescription + '\'' +
                 ", activePlayer=" + activePlayer +
                 ", nextCards=" + nextCards +
                 ", currentCard=" + currentCard +
                 '}';
     }
+
+    public String getLastResultDescription() {
+        return lastResultDescription;
+    }
+
+    public void setLastResultDescription(String lastResultDescription) {
+        this.lastResultDescription = lastResultDescription;
+    }
+
+    public void setCardCount(int cardCount) {
+        this.cardCount = cardCount;
+    }
+
 }
