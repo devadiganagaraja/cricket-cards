@@ -21,7 +21,7 @@ public class CricketAthleteService {
     @Autowired
     CricketAthleteUtils cricketAthleteUtils;
 
-    public List<CricketAthleteModel> fetchCricketAthletes(int count){
+    public List<CricketAthleteModel> fetchCricketAthletes(){
         List<CricketAthleteModel> cricketAthletes = new ArrayList<>();
 
 
@@ -44,6 +44,12 @@ public class CricketAthleteService {
 
     public Boolean populateCricketIplAthletes(long athleteId){
 
-        return cricketAthleteUtils.createCricketPlayerDetailsFromSource(athleteId);
+         cricketAthleteUtils.createCricketPlayerDetailsFromSource(athleteId);
+         return true;
+    }
+
+    public Boolean populateCricketLeagueAthletes(long leagueId) {
+        cricketAthleteUtils.createLeaguePlayerDetailsFromSource(leagueId);
+        return true;
     }
 }

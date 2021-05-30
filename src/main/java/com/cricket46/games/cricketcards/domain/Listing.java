@@ -2,7 +2,7 @@ package com.cricket46.games.cricketcards.domain;
 
 import java.util.List;
 
-public class AthleteListing {
+public class Listing {
 
     private List<Ref> items;
 

@@ -8,10 +8,10 @@ import com.cricket46.games.cricketcards.utils.CricketCardGameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 public class CricketCardGameService {
@@ -23,6 +23,16 @@ public class CricketCardGameService {
     @Autowired
     CricketAthleteService cricketAthleteService;
 
+    public CricketAthleteModel getRandomElement(List<CricketAthleteModel> cricketAthleteModelList, Set<Integer> selected)
+    {
+        Random rand = new Random();
+        int random = rand.nextInt(cricketAthleteModelList.size());
+        while(selected.contains(random)) random = rand.nextInt(cricketAthleteModelList.size());
+
+        selected.add(random);
+        return cricketAthleteModelList.get(random);
+    }
+
 
     public GameInfo createGame(long gameId) {
 
@@ -31,6 +41,11 @@ public class CricketCardGameService {
 
         gameInfo.setGameId(gameId);
 
+
+        List<CricketAthleteModel> cricketAthleteModelList = cricketAthleteService.fetchCricketAthletes().stream().filter(cricketAthleteModel -> cricketAthleteModel.getTotalMatches() > 100).collect(Collectors.toList());
+
+        Set<Integer> selected = new HashSet<>();
+
         PlayerGameInfo gamePlayer1 = new PlayerGameInfo();
         gamePlayer1.setActivePlayer(true);
         PlayerInfo player1 = new PlayerInfo();
@@ -38,15 +53,14 @@ public class CricketCardGameService {
         player1.setDisplayName("Player 1");
         gamePlayer1.setPlayerInfo(player1);
         gamePlayer1.setActivePlayer(true);
-        gamePlayer1.setCurrentCard(getDummyCard(1, "Sachin Tendulkar", 300, 10000, 104));
-        gamePlayer1.setNextCards(new ArrayList<>());
-        gamePlayer1.getNextCards().add(getDummyCard(2, "Sachin Tendulkar", 300, 10000, 104));
-        gamePlayer1.getNextCards().add(getDummyCard(3, "Sachin Tendulkar", 300, 10000, 104));
+        gamePlayer1.setNextCards(new LinkedList<>());
 
+        for(int i =0; i < 10; i++){
+            CricketAthleteModel randomAthlete = getRandomElement(cricketAthleteModelList, selected);
+            gamePlayer1.getNextCards().add(getCardDetails(randomAthlete.getPlayerId(), randomAthlete.getFullName(), randomAthlete.getTotalMatches(), randomAthlete.getTotalRuns(), randomAthlete.getTotalWickets()));
+        }
 
         gamePlayer1.setCardCount(gamePlayer1.getNextCards().size());
-        if(null != gamePlayer1.getCurrentCard())
-            gamePlayer1.setCardCount(gamePlayer1.getCardCount()+1);
 
         gameInfo.setPlayer1Info(gamePlayer1);
 
@@ -55,16 +69,16 @@ public class CricketCardGameService {
         player2.setPlayerId(2);
         player2.setDisplayName("Player 2");
         gamePlayer2.setPlayerInfo(player1);
-        gamePlayer2.setActivePlayer(true);
-        gamePlayer2.setCurrentCard(getDummyCard(4, "Anil Kumble", 310, 1000, 304));
-        gamePlayer2.setNextCards(new ArrayList<>());
-        gamePlayer2.getNextCards().add(getDummyCard(5, "Anil Kumble", 310, 1000, 304));
-        gamePlayer2.getNextCards().add(getDummyCard(6, "Anil Kumble", 310, 1000, 304));
+        gamePlayer2.setActivePlayer(false);
+        gamePlayer2.setNextCards(new LinkedList<>());
 
+
+        for(int i =0; i < 10; i++){
+            CricketAthleteModel randomAthlete = getRandomElement(cricketAthleteModelList, selected);
+            gamePlayer2.getNextCards().add(getCardDetails(randomAthlete.getPlayerId(), randomAthlete.getFullName(), randomAthlete.getTotalMatches(), randomAthlete.getTotalRuns(), randomAthlete.getTotalWickets()));
+        }
 
         gamePlayer2.setCardCount(gamePlayer2.getNextCards().size());
-        if(null != gamePlayer2.getCurrentCard())
-            gamePlayer2.setCardCount(gamePlayer2.getCardCount()+1);
 
 
 
@@ -73,7 +87,7 @@ public class CricketCardGameService {
         return gameInfo;
     }
 
-    private CricketAthleteModel getDummyCard(long playerId, String fullName, int matches, int runs, int wickets) {
+    private CricketAthleteModel getCardDetails(long playerId, String fullName, int matches, int runs, int wickets) {
         CricketAthleteModel cricketAthleteModel = new CricketAthleteModel();
         cricketAthleteModel.setPlayerId(playerId);
         cricketAthleteModel.setFullName(fullName);
@@ -91,6 +105,10 @@ public class CricketCardGameService {
 
         if(null == gameInfo){
             gameInfo = createGame(gameId);
+            gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+            gameInfo.getPlayer1Info().getNextCards().remove(0);
+            gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+            gameInfo.getPlayer2Info().getNextCards().remove(0);
             liveGames.put(gameId, gameInfo);
 
         }
@@ -108,5 +126,89 @@ public class CricketCardGameService {
         else
             return gameInfo.getPlayer2Info();
 
+    }
+
+
+    public boolean selectStat(long gameId, long playerId, int position) {
+        if(liveGames.containsKey(gameId)){
+            GameInfo gameInfo = liveGames.get(gameId);
+            CricketAthleteModel player1card = gameInfo.getPlayer1Info().getCurrentCard();
+            CricketAthleteModel player2card = gameInfo.getPlayer2Info().getCurrentCard();
+            if(position == 1){
+                if(player1card.getTotalMatches() >player2card.getTotalMatches()){
+                    gameInfo.getPlayer1Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer1Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()+1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()-1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(true);
+                    gameInfo.getPlayer2Info().setActivePlayer(false);
+                }else{
+                    gameInfo.getPlayer2Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer2Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()-1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()+1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(false);
+                    gameInfo.getPlayer2Info().setActivePlayer(true);
+                }
+            }else if(position == 2){
+                if(player1card.getTotalRuns() >player2card.getTotalRuns()){
+                    gameInfo.getPlayer1Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer1Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()+1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()-1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(true);
+                    gameInfo.getPlayer2Info().setActivePlayer(false);
+                }else{
+                    gameInfo.getPlayer2Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer2Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()-1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()+1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(false);
+                    gameInfo.getPlayer2Info().setActivePlayer(true);
+                }
+            }else if(position == 3){
+                if(player1card.getTotalWickets() >player2card.getTotalWickets()){
+                    gameInfo.getPlayer1Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer1Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()+1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()-1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(true);
+                    gameInfo.getPlayer2Info().setActivePlayer(false);
+                }else{
+                    gameInfo.getPlayer2Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer2Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()-1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()+1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(false);
+                    gameInfo.getPlayer2Info().setActivePlayer(true);
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

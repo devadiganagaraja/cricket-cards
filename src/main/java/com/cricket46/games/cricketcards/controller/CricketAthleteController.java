@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 public class CricketAthleteController {
 
@@ -19,7 +20,7 @@ public class CricketAthleteController {
 
     @GetMapping("/athletes")
     public List<CricketAthleteModel> listCricketPlayers(){
-        return cricketAthleteService.fetchCricketAthletes(0);
+        return cricketAthleteService.fetchCricketAthletes();
     }
 
     @GetMapping("/athletes/{athleteId}")
@@ -27,9 +28,9 @@ public class CricketAthleteController {
         return cricketAthleteService.fetchCricketAthlete(Long.valueOf(athleteId));
     }
 
-    @PostMapping("/athletes/{athleteId}")
-    public Boolean postCricketPlayer(@PathVariable String athleteId){
-        return cricketAthleteService.populateCricketIplAthletes(Long.valueOf(athleteId));
+    @GetMapping("/populatePlayers/league/{leagueId}")
+    public Boolean postCricketPlayersForLeague(@PathVariable long leagueId){
+        return cricketAthleteService.populateCricketLeagueAthletes(leagueId);
     }
 
 

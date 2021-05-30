@@ -1,6 +1,7 @@
 package com.cricket46.games.cricketcards.config;
 
 import com.cricket46.games.cricketcards.domain.CricketAthleteAggregate;
+import com.cricket46.games.cricketcards.domain.QCricketCardUserAggregate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,11 +9,8 @@ import org.springframework.context.annotation.Configuration;
 public class QueryDSLConfig {
 
 
-/*
-
     @Bean
-    public QCricketAthleteAggregate qCricketAthleteAggregate(){
-        return new QCricketAthleteAggregate("cricket_players");
+    public QCricketCardUserAggregate qCricketCardUserAggregate(){
+        return new QCricketCardUserAggregate("cricket_cards_users");
     }
-*/
 }
