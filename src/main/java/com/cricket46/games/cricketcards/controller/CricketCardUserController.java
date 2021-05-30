@@ -5,13 +5,11 @@ import com.cricket46.games.cricketcards.services.CricketCardUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -33,5 +31,10 @@ public class CricketCardUserController {
     public ResponseEntity<Boolean> createUser(@RequestBody User user){
         Boolean status = cricketCardUserService.addUser(user);
         return new ResponseEntity<Boolean>(status, HttpStatus.OK);
+    }
+
+    @GetMapping("/users")
+    public List<User> getUserList(){
+        return cricketCardUserService.getUsersList();
     }
 }

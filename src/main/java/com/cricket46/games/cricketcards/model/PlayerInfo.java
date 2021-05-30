@@ -2,7 +2,7 @@ package com.cricket46.games.cricketcards.model;
 
 public class PlayerInfo {
     private String displayName;
-    private int playerId;
+    private long playerId;
 
     public String getDisplayName() {
         return displayName;
@@ -12,11 +12,11 @@ public class PlayerInfo {
         this.displayName = displayName;
     }
 
-    public int getPlayerId() {
+    public long getPlayerId() {
         return playerId;
     }
 
-    public void setPlayerId(int playerId) {
+    public void setPlayerId(long playerId) {
         this.playerId = playerId;
     }
 

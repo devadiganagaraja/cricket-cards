@@ -1,9 +1,6 @@
 package com.cricket46.games.cricketcards.services;
 
-import com.cricket46.games.cricketcards.model.CricketAthleteModel;
-import com.cricket46.games.cricketcards.model.GameInfo;
-import com.cricket46.games.cricketcards.model.PlayerGameInfo;
-import com.cricket46.games.cricketcards.model.PlayerInfo;
+import com.cricket46.games.cricketcards.model.*;
 import com.cricket46.games.cricketcards.utils.CricketCardGameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +20,9 @@ public class CricketCardGameService {
     @Autowired
     CricketAthleteService cricketAthleteService;
 
+    @Autowired
+    CricketCardUserService cricketCardUserService;
+
     public CricketAthleteModel getRandomElement(List<CricketAthleteModel> cricketAthleteModelList, Set<Integer> selected)
     {
         Random rand = new Random();
@@ -34,7 +34,7 @@ public class CricketCardGameService {
     }
 
 
-    public GameInfo createGame(long gameId) {
+    public GameInfo createGame(long gameId, long player1Id, long player2Id) {
 
 
         GameInfo gameInfo = new GameInfo();
@@ -49,8 +49,10 @@ public class CricketCardGameService {
         PlayerGameInfo gamePlayer1 = new PlayerGameInfo();
         gamePlayer1.setActivePlayer(true);
         PlayerInfo player1 = new PlayerInfo();
-        player1.setPlayerId(1);
-        player1.setDisplayName("Player 1");
+        player1.setPlayerId(player1Id);
+        User user1 = cricketCardUserService.getUser(player1Id);
+
+        player1.setDisplayName(user1.getUserName());
         gamePlayer1.setPlayerInfo(player1);
         gamePlayer1.setActivePlayer(true);
         gamePlayer1.setNextCards(new LinkedList<>());
@@ -66,8 +68,10 @@ public class CricketCardGameService {
 
         PlayerGameInfo gamePlayer2 = new PlayerGameInfo();
         PlayerInfo player2 = new PlayerInfo();
-        player2.setPlayerId(2);
-        player2.setDisplayName("Player 2");
+        player2.setPlayerId(player2Id);
+        User user2 = cricketCardUserService.getUser(player2Id);
+
+        player2.setDisplayName(user2.getUserName());
         gamePlayer2.setPlayerInfo(player1);
         gamePlayer2.setActivePlayer(false);
         gamePlayer2.setNextCards(new LinkedList<>());
@@ -98,13 +102,13 @@ public class CricketCardGameService {
     }
 
 
-    public PlayerGameInfo getGamePageInfo(long  gameId, long playerId) {
+    public PlayerGameInfo getGamePageInfo(long  gameId, long player1Id, long player2Id) {
 
         GameInfo gameInfo = liveGames.get(gameId);
 
 
         if(null == gameInfo){
-            gameInfo = createGame(gameId);
+            gameInfo = createGame(gameId, player1Id, player2Id);
             gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
             gameInfo.getPlayer1Info().getNextCards().remove(0);
             gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
@@ -119,9 +123,8 @@ public class CricketCardGameService {
         }
 
         System.out.println("gameInfo: "+gameInfo);
-        System.out.println("playerId: "+playerId);
 
-        if(playerId == gameInfo.getPlayer1Info().getPlayerInfo().getPlayerId())
+        if(player1Id == gameInfo.getPlayer1Info().getPlayerInfo().getPlayerId())
             return gameInfo.getPlayer1Info();
         else
             return gameInfo.getPlayer2Info();
