@@ -75,8 +75,10 @@ public class CricketCardGameService {
 
         gamePlayer1.setCardCount(gamePlayer1.getNextCards().size());
 
-        gamePlayer1.setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
-        gamePlayer1.getNextCards().remove(0);
+        if(gamePlayer1.getNextCards() != null && gamePlayer1.getNextCards().size()  > 0) {
+            gamePlayer1.setCurrentCard(gamePlayer1.getNextCards().get(0));
+            gamePlayer1.getNextCards().remove(0);
+        }
 
         gameInfo.setPlayer1Info(gamePlayer1);
 
@@ -114,8 +116,11 @@ public class CricketCardGameService {
 
 
 
-        gamePlayer2.setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
-        gamePlayer2.getNextCards().remove(0);
+        if(gamePlayer2.getNextCards() != null && gamePlayer2.getNextCards().size()  > 0) {
+
+            gamePlayer2.setCurrentCard(gamePlayer2.getNextCards().get(0));
+            gamePlayer2.getNextCards().remove(0);
+        }
 
 
 
