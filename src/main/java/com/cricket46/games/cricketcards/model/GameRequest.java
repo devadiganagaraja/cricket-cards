@@ -1,10 +1,13 @@
 package com.cricket46.games.cricketcards.model;
 
+import java.util.Date;
+
 public class GameRequest {
     private String gameId;
     private String opponentName;
     private long opponentId;
     private String gameRef;
+    private Date requestDate;
 
 
     public String getGameId() {
@@ -21,6 +24,14 @@ public class GameRequest {
 
     public String getGameRef() {
         return gameRef;
+    }
+
+    public Date getRequestDate() {
+        return requestDate;
+    }
+
+    public void setRequestDate(Date requestDate) {
+        this.requestDate = requestDate;
     }
 
     public void setGameRef(String gameRef) {

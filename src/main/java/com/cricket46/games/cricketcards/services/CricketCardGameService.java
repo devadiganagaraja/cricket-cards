@@ -6,6 +6,7 @@ import com.cricket46.games.cricketcards.model.*;
 import com.cricket46.games.cricketcards.repository.CricketCardGameRepository;
 import com.cricket46.games.cricketcards.utils.CricketCardGameUtils;
 import com.mysema.codegen.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -353,6 +354,8 @@ public class CricketCardGameService {
 
     public List<GameRequest> getGameRequests(long playerId){
 
+
+
         Iterable<CricketCardGameAggregate> cricketCardGamItr = cricketCardGameRepository.findAll(qCricketCardGameAggregate.player2.eq(playerId).and(qCricketCardGameAggregate.winner.loe(0)));
 
         List<GameRequest> gameRequests = new ArrayList<>();
@@ -360,13 +363,19 @@ public class CricketCardGameService {
 
         while (it.hasNext()){
             CricketCardGameAggregate gameAggregate = it.next();
-            GameRequest gameRequest = new GameRequest();
-            gameRequest.setGameId(gameAggregate.getGameId());
-            gameRequest.setOpponentId(gameAggregate.getPlayer1());
-            gameRequest.setOpponentName(gameAggregate.getPlayer1Name());
-            gameRequest.setGameRef("/games/"+gameAggregate.gameId+"/player1/"+gameAggregate.getPlayer1()+"/player2/"+gameAggregate.getPlayer2());
-            gameRequests.add(gameRequest);
+            if(gameAggregate.getDate() != null && DateUtils.isSameDay(gameAggregate.getDate(), new Date())) {
+                GameRequest gameRequest = new GameRequest();
+                gameRequest.setGameId(gameAggregate.getGameId());
+                gameRequest.setOpponentId(gameAggregate.getPlayer1());
+                gameRequest.setOpponentName(gameAggregate.getPlayer1Name());
+                gameRequest.setGameRef("/games/" + gameAggregate.gameId + "/player1/" + gameAggregate.getPlayer1() + "/player2/" + gameAggregate.getPlayer2());
+                gameRequest.setRequestDate(gameAggregate.getDate());
+                gameRequests.add(gameRequest);
+            }
         }
+
+        gameRequests.sort(Comparator.comparing(GameRequest::getRequestDate, Comparator.reverseOrder()));
+
         return gameRequests;
 
     }
@@ -379,13 +388,20 @@ public class CricketCardGameService {
 
         while (it.hasNext()){
             CricketCardGameAggregate gameAggregate = it.next();
-            GameHistory gameHistory = new GameHistory();
-            gameHistory.setGameId(gameAggregate.getGameId());
-            gameHistory.setPlayer1Name(gameAggregate.getPlayer1Name());
-            gameHistory.setPlayer2Name(gameAggregate.getPlayer2Name());
-            gameHistory.setWinnerName(gameAggregate.getWinnerName());
-            gameHistories.add(gameHistory);
+            if(gameAggregate.getDate() != null) {
+                GameHistory gameHistory = new GameHistory();
+                gameHistory.setGameId(gameAggregate.getGameId());
+                gameHistory.setPlayer1Name(gameAggregate.getPlayer1Name());
+                gameHistory.setPlayer2Name(gameAggregate.getPlayer2Name());
+                gameHistory.setWinnerName(gameAggregate.getWinnerName());
+                gameHistory.setDate(gameAggregate.getDate());
+                gameHistories.add(gameHistory);
+            }
         }
+
+        gameHistories.sort(Comparator.comparing(GameHistory::getDate, Comparator.reverseOrder()));
+        gameHistories = gameHistories.stream().limit(10).collect(Collectors.toList());
+
         return gameHistories;
     }
 

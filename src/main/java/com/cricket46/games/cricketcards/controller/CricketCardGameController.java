@@ -39,11 +39,13 @@ public class CricketCardGameController {
 
 
     @PostMapping("/inviteFriend")
-    public ResponseEntity<String> inviteFriend(@RequestBody GameInvitation gameInvitation) {
+    public ResponseEntity<GameUrl> inviteFriend(@RequestBody GameInvitation gameInvitation) {
         System.out.println("gameInvitation--"+gameInvitation);
 
         String gamePageUrl = cricketCardGameService.inviteFriend(gameInvitation.getPlayer1Id(), gameInvitation.getPlayer2Id());
-        return new ResponseEntity<String>(gamePageUrl, HttpStatus.OK);
+        GameUrl gameUrl = new GameUrl();
+        gameUrl.setGameUrl(gamePageUrl);
+        return new ResponseEntity<GameUrl>(gameUrl, HttpStatus.OK);
     }
 
 

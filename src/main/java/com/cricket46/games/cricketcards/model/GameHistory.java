@@ -1,10 +1,13 @@
 package com.cricket46.games.cricketcards.model;
 
+import java.util.Date;
+
 public class GameHistory {
     private String gameId;
     private String player1Name;
     private String player2Name;
     private String winnerName;
+    private Date date;
 
     public String getGameId() {
         return gameId;
@@ -16,6 +19,14 @@ public class GameHistory {
 
     public String getPlayer1Name() {
         return player1Name;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public void setPlayer1Name(String player1Name) {
