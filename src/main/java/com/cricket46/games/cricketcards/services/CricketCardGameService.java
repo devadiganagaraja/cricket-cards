@@ -410,7 +410,7 @@ public class CricketCardGameService {
         GameInfo gameInfo = createGame(player1Id, player2Id);
         liveGames.put(gameInfo.getGameId(), gameInfo);
 
-        return "/games/"+gameInfo.getGameId()+"/player1/"+player1Id+"/player2/"+player2Id;
+        return "/games/"+gameInfo.getGameId()+"/player1/"+player2Id+"/player2/"+player1Id;
 
     }
 }
