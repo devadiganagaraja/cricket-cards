@@ -1,15 +1,16 @@
 package com.cricket46.games.cricketcards.model;
 
 public class Selection {
-    private long gameId;
+    private String gameId;
     private long playerId;
     private int position;
 
-    public long getGameId() {
+
+    public String getGameId() {
         return gameId;
     }
 
-    public void setGameId(long gameId) {
+    public void setGameId(String gameId) {
         this.gameId = gameId;
     }
 

@@ -181,7 +181,7 @@ public class CricketCardGameService {
     }
 
 
-    public boolean selectStat(long gameId, long playerId, int position) {
+    public boolean selectStat(String gameId, long playerId, int position) {
         if(liveGames.containsKey(gameId)){
             GameInfo gameInfo = liveGames.get(gameId);
             CricketAthleteModel player1card = gameInfo.getPlayer1Info().getCurrentCard();
