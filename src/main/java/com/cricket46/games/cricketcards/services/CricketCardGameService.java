@@ -100,6 +100,7 @@ public class CricketCardGameService {
 
         cricketCardGameAggregate.setPlayer1Name(user1.getUserName());
         cricketCardGameAggregate.setPlayer2Name(user2.getUserName());
+        cricketCardGameAggregate.setDate(new Date());
 
 
 
