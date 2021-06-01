@@ -22,6 +22,8 @@ public class CricketCardGameService {
     @Autowired
     Map<String, GameInfo> liveGames;
 
+    Random random = new Random();
+
     @Autowired
     CricketAthleteService cricketAthleteService;
 
@@ -66,12 +68,13 @@ public class CricketCardGameService {
 
         player1.setDisplayName(user1.getUserName());
         gamePlayer1.setPlayerInfo(player1);
-        gamePlayer1.setActivePlayer(true);
+        if(random.nextBoolean())
+            gamePlayer1.setActivePlayer(true);
         gamePlayer1.setNextCards(new LinkedList<>());
 
-        for(int i =0; i < 10; i++){
+        for(int i =0; i < 6; i++){
             CricketAthleteModel randomAthlete = getRandomElement(cricketAthleteModelList, selected);
-            gamePlayer1.getNextCards().add(getCardDetails(randomAthlete.getPlayerId(), randomAthlete.getFullName(), randomAthlete.getTotalMatches(), randomAthlete.getTotalRuns(), randomAthlete.getTotalWickets()));
+            gamePlayer1.getNextCards().add(getCardDetails(randomAthlete.getPlayerId(), randomAthlete.getFullName(), randomAthlete.getTotalMatches(), randomAthlete.getTotalRuns(), randomAthlete.getTotalWickets(), randomAthlete.getHighestScore(), randomAthlete.getBestBowling()));
         }
 
         gamePlayer1.setCardCount(gamePlayer1.getNextCards().size());
@@ -90,7 +93,7 @@ public class CricketCardGameService {
 
         player2.setDisplayName(user2.getUserName());
         gamePlayer2.setPlayerInfo(player1);
-        gamePlayer2.setActivePlayer(false);
+        gamePlayer2.setActivePlayer(!gamePlayer1.isActivePlayer());
         gamePlayer2.setNextCards(new LinkedList<>());
 
 
@@ -109,9 +112,9 @@ public class CricketCardGameService {
         gameInfo.setGameId(cricketCardGameAggregate.getGameId());
 
 
-        for(int i =0; i < 10; i++){
+        for(int i =0; i < 6; i++){
             CricketAthleteModel randomAthlete = getRandomElement(cricketAthleteModelList, selected);
-            gamePlayer2.getNextCards().add(getCardDetails(randomAthlete.getPlayerId(), randomAthlete.getFullName(), randomAthlete.getTotalMatches(), randomAthlete.getTotalRuns(), randomAthlete.getTotalWickets()));
+            gamePlayer2.getNextCards().add(getCardDetails(randomAthlete.getPlayerId(), randomAthlete.getFullName(), randomAthlete.getTotalMatches(), randomAthlete.getTotalRuns(), randomAthlete.getTotalWickets(), randomAthlete.getHighestScore(), randomAthlete.getBestBowling()));
         }
 
         gamePlayer2.setCardCount(gamePlayer2.getNextCards().size());
@@ -131,13 +134,15 @@ public class CricketCardGameService {
         return gameInfo;
     }
 
-    private CricketAthleteModel getCardDetails(long playerId, String fullName, int matches, int runs, int wickets) {
+    private CricketAthleteModel getCardDetails(long playerId, String fullName, int matches, int runs, int wickets, String highestScore, String bestBowling) {
         CricketAthleteModel cricketAthleteModel = new CricketAthleteModel();
         cricketAthleteModel.setPlayerId(playerId);
         cricketAthleteModel.setFullName(fullName);
         cricketAthleteModel.setTotalMatches(matches);
         cricketAthleteModel.setTotalRuns(runs);
         cricketAthleteModel.setTotalWickets(wickets);
+        cricketAthleteModel.setHighestScore(highestScore);
+        cricketAthleteModel.setBestBowling(bestBowling);
         return cricketAthleteModel;
     }
 
@@ -169,6 +174,9 @@ public class CricketCardGameService {
                     cricketCardGameAggregate.setWinner(gameInfo.getPlayer1Info().getPlayerInfo().getPlayerId());
                     cricketCardGameAggregate.setWinnerName(gameInfo.getPlayer1Info().getPlayerInfo().getDisplayName());
                 }
+
+                cricketCardGameAggregate.setPlayer1CardCount(gameInfo.getPlayer1Info().getCardCount());
+                cricketCardGameAggregate.setPlayer2CardCount(gameInfo.getPlayer2Info().getCardCount());
                 cricketCardGameRepository.save(cricketCardGameAggregate);
             }
         }
@@ -342,6 +350,125 @@ public class CricketCardGameService {
                     StringBuilder player2Str = new StringBuilder("");
                     player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getTotalWickets()).append(" ] ")
                             .append( " won against ").append(player1card.getFullName()).append(" [").append(player1card.getTotalWickets()).append(" ] on wickets.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
+                }
+            } else if(position == 4){
+                int player1Score = Integer.valueOf(player1card.getHighestScore().replace("*", ""));
+                int player2Score = Integer.valueOf(player2card.getHighestScore().replace("*", ""));
+
+                boolean check =false;
+                if(player1Score > player2Score) check =true;
+                else if(player1Score < player2Score) check =false;
+                else if(player1card.getHighestScore().contains("*")) check=true;
+
+
+
+                if(check){
+                    gameInfo.getPlayer1Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer1Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()+1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()-1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(true);
+                    gameInfo.getPlayer2Info().setActivePlayer(false);
+
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getHighestScore()).append(" ] ")
+                            .append( " won against ").append(player2card.getFullName()).append(" [").append(player2card.getHighestScore()).append(" ] on Highest Score.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getHighestScore()).append(" ] ")
+                            .append( " lost against ").append(player1card.getFullName()).append(" [").append(player1card.getHighestScore()).append(" ] on Highest Score.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
+                }else{
+                    gameInfo.getPlayer2Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer2Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()-1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()+1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(false);
+                    gameInfo.getPlayer2Info().setActivePlayer(true);
+
+
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getHighestScore()).append(" ] ")
+                            .append( " lost against ").append(player2card.getFullName()).append(" [").append(player2card.getHighestScore()).append(" ] on Highest Score.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getHighestScore()).append(" ] ")
+                            .append( " won against ").append(player1card.getFullName()).append(" [").append(player1card.getHighestScore()).append(" ] on Highest Score.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
+                }
+            }
+
+
+            else if(position == 5){
+                if(player1card.getBestBowling().compareTo(player2card.getBestBowling()) > 0){
+                    gameInfo.getPlayer1Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer1Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()+1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()-1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(true);
+                    gameInfo.getPlayer2Info().setActivePlayer(false);
+
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getBestBowling()).append(" ] ")
+                            .append( " won against ").append(player2card.getFullName()).append(" [").append(player2card.getBestBowling()).append(" ] on Best Bowling.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getBestBowling()).append(" ] ")
+                            .append( " lost against ").append(player1card.getFullName()).append(" [").append(player1card.getBestBowling()).append(" ] on Best Bowling.");
+
+                    gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
+                    gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());
+                }else{
+                    gameInfo.getPlayer2Info().getNextCards().add(player1card);
+                    gameInfo.getPlayer2Info().getNextCards().add(player2card);
+                    gameInfo.getPlayer1Info().setCardCount( gameInfo.getPlayer1Info().getCardCount()-1);
+                    gameInfo.getPlayer2Info().setCardCount( gameInfo.getPlayer2Info().getCardCount()+1);
+                    gameInfo.getPlayer1Info().setCurrentCard(gameInfo.getPlayer1Info().getNextCards().get(0));
+                    gameInfo.getPlayer1Info().getNextCards().remove(0);
+                    gameInfo.getPlayer2Info().setCurrentCard(gameInfo.getPlayer2Info().getNextCards().get(0));
+                    gameInfo.getPlayer2Info().getNextCards().remove(0);
+                    gameInfo.getPlayer1Info().setActivePlayer(false);
+                    gameInfo.getPlayer2Info().setActivePlayer(true);
+
+
+                    gameInfo.getPlayer2Info().setLastResultMessage("You Won!");
+                    gameInfo.getPlayer1Info().setLastResultMessage("You Lost!");
+
+                    StringBuilder player1Str = new StringBuilder("");
+                    player1Str.append("Your card: "+player1card.getFullName()).append(" [").append(player1card.getBestBowling()).append(" ] ")
+                            .append( " lost against ").append(player2card.getFullName()).append(" [").append(player2card.getBestBowling()).append(" ] on Best Bowling.");
+
+                    StringBuilder player2Str = new StringBuilder("");
+                    player2Str.append("Your card: "+player2card.getFullName()).append(" [").append(player2card.getBestBowling()).append(" ] ")
+                            .append( " won against ").append(player1card.getFullName()).append(" [").append(player1card.getBestBowling()).append(" ] on Best Bowling.");
 
                     gameInfo.getPlayer1Info().setLastResultDescription(player1Str.toString());
                     gameInfo.getPlayer2Info().setLastResultDescription(player2Str.toString());

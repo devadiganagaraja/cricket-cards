@@ -11,9 +11,33 @@ public class CricketAthleteAggregate {
     private long playerId;
     private String fullName;
 
+    public String getBestBowlingFigures() {
+        return bestBowlingFigures;
+    }
+
+    public void setBestBowlingFigures(String bestBowlingFigures) {
+        this.bestBowlingFigures = bestBowlingFigures;
+    }
+
     private int totalRuns;
     private int totalWickets;
     private int totalMatches;
+
+    @Override
+    public String toString() {
+        return "CricketAthleteAggregate{" +
+                "playerId=" + playerId +
+                ", fullName='" + fullName + '\'' +
+                ", totalRuns=" + totalRuns +
+                ", totalWickets=" + totalWickets +
+                ", totalMatches=" + totalMatches +
+                ", highestScore='" + highestScore + '\'' +
+                ", bestBowlingFigures='" + bestBowlingFigures + '\'' +
+                '}';
+    }
+
+    private String highestScore;
+    private String bestBowlingFigures;
 
     public long getPlayerId() {
         return playerId;
@@ -41,6 +65,14 @@ public class CricketAthleteAggregate {
 
     public int getTotalWickets() {
         return totalWickets;
+    }
+
+    public String getHighestScore() {
+        return highestScore;
+    }
+
+    public void setHighestScore(String highestScore) {
+        this.highestScore = highestScore;
     }
 
     public void setTotalWickets(int totalWickets) {

@@ -114,8 +114,11 @@ public class CricketAthleteUtils {
                                     cricketAthleteAggregate.setTotalRuns(stat.getValue());
                                 }if(stat.getName().equalsIgnoreCase("wickets")) {
                                     cricketAthleteAggregate.setTotalWickets(stat.getValue());
+                                }if(stat.getName().equalsIgnoreCase("highScore")) {
+                                    cricketAthleteAggregate.setHighestScore(stat.getDisplayValue());
+                                }if(stat.getName().equalsIgnoreCase("bestBowlingFigures")) {
+                                    cricketAthleteAggregate.setBestBowlingFigures(stat.getDisplayValue());
                                 }
-
 
                             });
                         }

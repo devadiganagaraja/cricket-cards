@@ -7,6 +7,8 @@ public class CricketAthleteModel {
     private int totalMatches;
     private int totalRuns;
     private int totalWickets;
+    private String highestScore;
+    private String bestBowling;
 
     public long getPlayerId() {
         return playerId;
@@ -36,6 +38,9 @@ public class CricketAthleteModel {
         return totalRuns;
     }
 
+
+
+
     public void setTotalRuns(int totalRuns) {
         this.totalRuns = totalRuns;
     }
@@ -48,6 +53,11 @@ public class CricketAthleteModel {
         this.totalWickets = totalWickets;
     }
 
+
+    public String getHighestScore() {
+        return highestScore;
+    }
+
     @Override
     public String toString() {
         return "CricketAthleteModel{" +
@@ -56,6 +66,20 @@ public class CricketAthleteModel {
                 ", totalMatches=" + totalMatches +
                 ", totalRuns=" + totalRuns +
                 ", totalWickets=" + totalWickets +
+                ", highestScore='" + highestScore + '\'' +
+                ", bestBowling='" + bestBowling + '\'' +
                 '}';
+    }
+
+    public void setHighestScore(String highestScore) {
+        this.highestScore = highestScore;
+    }
+
+    public String getBestBowling() {
+        return bestBowling;
+    }
+
+    public void setBestBowling(String bestBowling) {
+        this.bestBowling = bestBowling;
     }
 }

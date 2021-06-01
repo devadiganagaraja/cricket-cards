@@ -27,6 +27,10 @@ public class CricketCardGameAggregate {
 
     private Date date;
 
+    private int player1CardCount;
+
+    private int player2CardCount;
+
     public String getPlayer1Name() {
         return player1Name;
     }
@@ -65,6 +69,22 @@ public class CricketCardGameAggregate {
 
     public void setPlayer1(long player1) {
         this.player1 = player1;
+    }
+
+    public int getPlayer1CardCount() {
+        return player1CardCount;
+    }
+
+    public void setPlayer1CardCount(int player1CardCount) {
+        this.player1CardCount = player1CardCount;
+    }
+
+    public int getPlayer2CardCount() {
+        return player2CardCount;
+    }
+
+    public void setPlayer2CardCount(int player2CardCount) {
+        this.player2CardCount = player2CardCount;
     }
 
     public Date getDate() {
