@@ -33,6 +33,8 @@ public class CricketAthleteUtils {
         cricketAthleteModel.setTotalMatches(cricketAthleteAggregate.getTotalMatches());
         cricketAthleteModel.setTotalRuns(cricketAthleteAggregate.getTotalRuns());
         cricketAthleteModel.setTotalWickets(cricketAthleteAggregate.getTotalWickets());
+        cricketAthleteModel.setHighestScore(cricketAthleteAggregate.getHighestScore());
+        cricketAthleteModel.setBestBowling(cricketAthleteAggregate.getBestBowlingFigures());
         return cricketAthleteModel;
     }
 
